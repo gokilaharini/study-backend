@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-
-# Gemini API setup
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 @app.route("/", methods=["GET"])
@@ -18,17 +16,22 @@ def index():
 def summarize():
     try:
         data = request.json
-        text = data.get("text", "")
+        text = data.get("text", "").strip()
 
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
         model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(f"Summarize this: {text}")
+        response = model.generate_content(text)
 
-        return jsonify({"summary": response.text})
+        if hasattr(response, 'text') and response.text:
+            return jsonify({"summary": response.text.strip()})
+        else:
+            return jsonify({"error": "No summary returned from Gemini"}), 502
+
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Gemini API failed: {str(e)}"}), 500
 
-if __name__ == "__main__":
-    app.run(debug=True)
+# Vercel handler
+def handler(environ, start_response):
+    return app(environ, start_response)
