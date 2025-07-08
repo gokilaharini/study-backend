@@ -1,46 +1,34 @@
 from flask import Flask, request, jsonify
 import google.generativeai as genai
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-# Configure Gemini API
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-
-if not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY is not set in environment variables")
-
-genai.configure(api_key=GEMINI_API_KEY)
-
-model = genai.GenerativeModel("gemini-1.5-flash")
+# Gemini API setup
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 @app.route("/", methods=["GET"])
 def index():
     return jsonify({"status": "API is running"})
 
-
 @app.route("/summarize", methods=["POST"])
 def summarize():
     try:
-        data = request.get_json()
-        text = data.get("text", "").strip()
+        data = request.json
+        text = data.get("text", "")
 
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
-        # Call Gemini API
-        response = model.generate_content(text)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(f"Summarize this: {text}")
 
-        # Return result
-        if hasattr(response, 'text') and response.text:
-            return jsonify({"summary": response.text.strip()})
-        else:
-            return jsonify({"error": "Empty response from Gemini"}), 502
-
+        return jsonify({"summary": response.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
-# Required by Vercel
-def handler(environ, start_response):
-    return app(environ, start_response)
+if __name__ == "__main__":
+    app.run(debug=True)
