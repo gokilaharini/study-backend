@@ -10,6 +10,8 @@ app = Flask(__name__)
 CORS(app)
 # Gemini API setup
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+chat_model = genai.GenerativeModel("gemini-1.5-pro")
+chat = chat_model.start_chat(history=[])
 
 @app.route("/", methods=["GET"])
 def index():
@@ -28,6 +30,25 @@ def summarize():
         response = model.generate_content(f"Summarize this: {text}")
 
         return jsonify({"summary": response.text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/chat", methods=["POST"])
+def chatbot():
+    try:
+        data = request.json
+        user_input = data.get("message", "").strip()
+
+        if not user_input:
+            return jsonify({"error": "No message provided"}), 400
+
+        response = chat.send_message(user_input)
+
+        return jsonify({
+            "response": response.text.strip(),
+            "history": [{"role": h.role, "parts": h.parts[0].text} for h in chat.history]
+        }), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
