@@ -39,11 +39,11 @@ def chatbot():
         if not user_input:
             return jsonify({"error": "No message provided"}), 400
         
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        chat_model = genai.GenerativeModel("gemini-1.5-flash")
-        chat = chat_model.start_chat(history=[])
+        # genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        # chat_model = genai.GenerativeModel("gemini-1.5-flash")
 
-        response = chat.send_message(user_input)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(f"asnswer this question : {user_input}")
 
         return jsonify({
             "response": response.text.strip(),
