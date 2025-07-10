@@ -9,9 +9,6 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 # Gemini API setup
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-chat_model = genai.GenerativeModel("gemini-1.5-flash")
-chat = chat_model.start_chat(history=[])
 
 @app.route("/", methods=["GET"])
 def index():
@@ -41,6 +38,10 @@ def chatbot():
 
         if not user_input:
             return jsonify({"error": "No message provided"}), 400
+        
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        chat_model = genai.GenerativeModel("gemini-1.5-flash")
+        chat = chat_model.start_chat(history=[])
 
         response = chat.send_message(user_input)
 
