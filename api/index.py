@@ -47,7 +47,7 @@ def chatbot():
 
         return jsonify({
             "response": response.text.strip(),
-            "history": [{"role": h.role, "parts": h.parts[0].text} for h in chat.history]
+            "history": [{"role": h.role, "parts": h.parts[0].text} for h in model.history]
         }), 200
 
     except Exception as e:
