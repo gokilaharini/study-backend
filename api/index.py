@@ -7,7 +7,7 @@ from flask_cors import CORS
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["*"])
 # Gemini API setup
 
 @app.route("/", methods=["GET"])
