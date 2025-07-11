@@ -26,9 +26,14 @@ def summarize():
             return jsonify({"error": "No text provided"}), 400
 
         model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(f"Summarize this: {text}")
+        response = model.generate_content([f"Summarize this: {text}"])
 
-        return jsonify({"summary": response.text.strip()})
+        # Extract text safely
+        if hasattr(response, 'text') and response.text:
+            return jsonify({"summary": response.text.strip()})
+        else:
+            return jsonify({"error": "Empty response from Gemini API"}), 500
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -42,11 +47,12 @@ def chatbot():
             return jsonify({"error": "No message provided"}), 400
 
         model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(f"Answer this question: {user_input}")
+        response = model.generate_content([f"{user_input}"])
 
-        return jsonify({
-            "response": response.text.strip()
-        }), 200
+        if hasattr(response, 'text') and response.text:
+            return jsonify({"response": response.text.strip()}), 200
+        else:
+            return jsonify({"error": "Empty response from Gemini API"}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
