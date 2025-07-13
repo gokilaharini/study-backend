@@ -23,7 +23,7 @@ def summarize():
         if not text:
             return jsonify({"error": "No text provided"}), 400
         
-        model = genai.GenerativeModel("gemini-1.5-flash-latest")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content([f"Summarize this: {text}"])
 
         # Extract text safely
@@ -44,7 +44,7 @@ def chatbot():
         if not user_input:
             return jsonify({"error": "No message provided"}), 400
         
-        model = genai.GenerativeModel("gemini-1.5-flash-latest")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content([f"Answer this question: {user_input}"])
 
         if hasattr(response, 'text') and response.text:
