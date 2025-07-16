@@ -86,7 +86,6 @@ def generate_quiz():
         Respond ONLY with a valid JSON array of 5 quiz objects.
         """
         model = genai.GenerativeModel("gemini-2.0-flash")
-        model = genai.GenerativeModel(model)
         response = model.generate_content(prompt)
 
         # Try parsing response
